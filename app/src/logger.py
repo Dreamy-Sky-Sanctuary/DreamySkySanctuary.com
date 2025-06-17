@@ -1,7 +1,7 @@
 import discord
 from loguru import logger as lg
 import sys
-from typing import Union
+from typing import Any, Union, Optional
 
 # Class to log messages
 class Logger(object):
@@ -15,8 +15,8 @@ class Logger(object):
     def __new__(cls, *args, **kwargs) -> "Logger":
         if not cls._instance:
             cls._instance = super(Logger, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
-        
+        return cls._instance # type: ignore
+
     # Function to setup the logger
     def setup_logger(self):
         """The function to setup the logger with different handlers."""
@@ -28,9 +28,7 @@ class Logger(object):
         lg.add("/dreamy-data/logs/error.log", level="ERROR", format=log_format, retention="14 days")
         lg.level("PRINT", no=9999, color="<green><b>")
 
-
-    # Function to log messages
-    def log(self, level: str, message: str, extra: dict[str: any] = None, depth=1) -> None:
+    def log(self, level: str, message: str, extra: Optional[dict[str, Any]] = None, depth=1) -> None:
         """The function to log messages with different levels.
 
         Args:
@@ -58,7 +56,7 @@ class Logger(object):
                 return lg.opt(depth=depth).log("PRINT", message, extra)
     
     
-    def command(self, interaction: discord.Interaction, extra: dict[str: any] = None) -> None:
+    def command(self, interaction: discord.Interaction, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log command messages.
 
         Args:
@@ -70,14 +68,14 @@ class Logger(object):
         extra["user_id"] =  interaction.user.id
         extra["username"] = interaction.user.name
         extra["display_name"] = interaction.user.display_name
-        extra["channel_id"] = interaction.channel.id
-        extra["channel_name"] = interaction.channel.name
-        extra["guild_id"] = interaction.guild.id
-        extra["guild_name"] = interaction.guild.name
+        extra["channel_id"] = interaction.channel.id # type: ignore
+        extra["channel_name"] = interaction.channel.name # type: ignore
+        extra["guild_id"] = interaction.guild.id # type: ignore
+        extra["guild_name"] = interaction.guild.name # type: ignore
         
         self.log("DEBUG", f"Command executed by {extra['display_name']} in {extra['guild_name']}#{extra['channel_name']}", extra, depth=2)
 
-    def debug(self, message: str, extra: dict[str: any] = None) -> None:
+    def debug(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log debug messages.
 
         Args:
@@ -86,7 +84,7 @@ class Logger(object):
         """
         self.log("DEBUG", message, extra, depth=2)
     
-    def info(self, message: str, extra: dict[str: any] = None) -> None:
+    def info(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log info messages.
 
         Args:
@@ -95,7 +93,7 @@ class Logger(object):
         """
         self.log("INFO", message, extra, depth=2)
     
-    def success(self, message: str, extra: dict[str: any] = None) -> None:
+    def success(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log success messages.
 
         Args:
@@ -104,7 +102,7 @@ class Logger(object):
         """
         self.log("SUCCESS", message, extra, depth=2)
     
-    def warning(self, message: str, extra: dict[str: any] = None) -> None:
+    def warning(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log warning messages.
 
         Args:
@@ -113,7 +111,7 @@ class Logger(object):
         """
         self.log("WARNING", message, extra, depth=2)
     
-    def error(self, message: str, extra: dict[str: any] = None) -> None:
+    def error(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log error messages.
 
         Args:
@@ -122,7 +120,7 @@ class Logger(object):
         """
         self.log("ERROR", message, extra, depth=2)
     
-    def critical(self, message: str, extra: dict[str: any] = None) -> None:
+    def critical(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log critical messages.
 
         Args:
@@ -131,7 +129,7 @@ class Logger(object):
         """
         self.log("CRITICAL", message, extra, depth=2)
         
-    def print(self, message: str, extra: dict[str: any] = None) -> None:
+    def print(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log print messages.
 
         Args:
@@ -140,7 +138,7 @@ class Logger(object):
         """
         self.log("PRINT", message, extra, depth=2)
         
-    def exception(self, message: str, extra: dict[str: any] = None) -> None:
+    def exception(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log exception messages.
 
         Args:
@@ -149,7 +147,7 @@ class Logger(object):
         """
         self.log("ERROR", message, extra, depth=2)
     
-    def traceback(self, message: str, extra: dict[str: any] = None) -> None:
+    def traceback(self, message: str, extra: Optional[dict[str, Any]] = None) -> None:
         """The function to log traceback messages.
 
         Args:

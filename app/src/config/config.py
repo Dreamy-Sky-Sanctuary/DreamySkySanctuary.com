@@ -2,6 +2,8 @@ from datetime import timedelta
 import os
 import dotenv
 
+dotenv.load_dotenv()
+
 VERSION: str = '0.0.1'
 APP_NAME: str = 'DreamySkySanctuary'
 DESCRIPTION: str = 'The website of the Dreamy Sky Sanctuary, a discord server about the game Sky: Children of the Light.'
@@ -24,18 +26,18 @@ CHECK_INTERVAL: int = 60 * 60 * 24  # 24 hours
 
 
 ENV_FILE: str = os.path.join(BASE_DIR, ".env")
-TOKEN: str = dotenv.get_key(ENV_FILE, "DISCORD_TOKEN")
+TOKEN: str = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN")
 
-SERVER_SECRET: str = dotenv.get_key(ENV_FILE, "SERVER_SECRET")
+SERVER_SECRET: str = os.getenv("SERVER_SECRET", "123supersecretkey123")
 ALGORITHM: str = "HS256"
 OTP_WINDOW: int = 2
 
-DISCORD_OWNER_ID: int = dotenv.get_key(ENV_FILE, "DISCORD_OWNER_ID")
+DISCORD_OWNER_ID: int = int(os.getenv("DISCORD_OWNER_ID", "DEFAULT_OWNER_ID"))
 
-SMTP_SERVER: str = dotenv.get_key(ENV_FILE, "SMTP_SERVER")
-SMTP_PORT: int = dotenv.get_key(ENV_FILE, "SMTP_PORT")
-SMTP_USERNAME: str = dotenv.get_key(ENV_FILE, "SMTP_USERNAME")
-SMTP_PASSWORD: str = dotenv.get_key(ENV_FILE, "SMTP_PASSWORD")
+SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.example.com")
+SMTP_PORT: int = int(os.getenv("SMTP_PORT", 645))
+SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "root")
+SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "root")
 
 
 ALLOWED_FILE_TYPES: dict[str, str] = {

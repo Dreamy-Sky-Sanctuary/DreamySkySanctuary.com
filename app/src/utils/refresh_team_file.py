@@ -18,15 +18,20 @@ async def refresh_team_file(file_path, expire_time) -> None:
 async def get_team_data():
     owner_id = [529007366365249546]
     owner_data = []
+    owner_info = ""
     celestial_id = [485157849211863040]
     celestial_data = []
+    celestial_info = ""
     guardian_id = [435848199551451146, 640935141958483978, 187126200873910272]
     guardian_data = []
+    guardian_info = ""
     tech_id = [371350209160019970]
     tech_data = []
+    tech_info = ""
     lumi_id = [628517615270363137, 1218643132363702352, 971730515256287303, 713397233936105532, 593568851203981324, 1055723680979746896]
     left_lumi = []
     right_lumi = []
+    lumi_info = ""
     for _id in owner_id:
         return_data, _ = await fetch_by_id(_id)
         owner_data.append(return_data["user"])

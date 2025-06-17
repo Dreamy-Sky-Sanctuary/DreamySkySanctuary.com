@@ -1,4 +1,6 @@
 # python imports
+from collections.abc import Sequence
+from typing import Any, Dict
 from dotenv import load_dotenv
 import os
 
@@ -14,18 +16,18 @@ from src.schemas.Image import ImageGalleryLink, GalleryData, ImageData
 from src.logger import logger
 
 load_dotenv()
-DATABASE_ENDPOINT = os.getenv("DATABASE_ENDPOINT")
-DATABASE_USER = os.getenv("DATABASE_USERNAME")
-DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
-DATABASE_PORT = os.getenv("DATABASE_PORT")
+DATABASE_ENDPOINT: str = os.getenv("DATABASE_ENDPOINT", "localhost")  # Default to localhost if not set
+DATABASE_USER: str = os.getenv("DATABASE_USERNAME", "root") # Default to 'root' if not set
+DATABASE_PASSWORD: str = os.getenv("DATABASE_PASSWORD", "root") # Default to 'root' if not set
+DATABASE_PORT: str = os.getenv("DATABASE_PORT", "3306")  # Default MySQL port is 3306
 
 
 # Function to create MySQL database connection
-def create_connection(database_name: str) -> mysql.connector.connection.MySQLConnection:
+def create_connection(database_name: str) -> PooledMySQLConnection | MySQLConnectionAbstract:
     # logger.debug(f"Connecting to the database: {database_name}")
-    connection = None
+    connection: PooledMySQLConnection | MySQLConnectionAbstract | None = None
     try:
-        connection: PooledMySQLConnection | MySQLConnectionAbstract = mysql.connector.connect(
+        connection = mysql.connector.connect(
             host=DATABASE_ENDPOINT,
             user=DATABASE_USER,
             password=DATABASE_PASSWORD,
@@ -41,11 +43,11 @@ def create_connection(database_name: str) -> mysql.connector.connection.MySQLCon
             })
     except Error as e:
         logger.error(f"The error '{e}' occurred")
-    return connection
+    return connection # type: ignore
 
 
 # Close MySQL connection
-def close_connection(connection: PooledMySQLConnection | MySQLConnectionAbstract):
+def close_connection(connection: PooledMySQLConnection | MySQLConnectionAbstract) -> None:
     if connection.is_connected():
         # logger.debug("Closing the database connection.")
         connection.close()
@@ -67,7 +69,7 @@ def insert_query(connection: PooledMySQLConnection | MySQLConnectionAbstract, qu
 
 
 # Select query function
-def select_query(connection: PooledMySQLConnection | MySQLConnectionAbstract, query, values=None):
+def select_query(connection: PooledMySQLConnection | MySQLConnectionAbstract, query, values: Any = None):
     # logger.debug(f"Selecting data from the database: {query}") # Commented out to reduce log verbosity
     cursor = connection.cursor(dictionary=True)
     try:
@@ -113,17 +115,17 @@ def get_image_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstrac
     values = (filename,)
     result = select_query(connection, query, values)
     if result:
-        return ImageData(**result[0])
+        return ImageData(**result[0]) # type: ignore
     return None
 
 
-def get_images_by_user_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> list[ImageData]:
+def get_images_by_user_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> list[ImageData] | None:
     logger.debug(f"Getting images of user: `{user.username}` from the database.")
     query = "SELECT * FROM images WHERE uploaded_by = %s"
     values = (user.username,)
     result = select_query(connection, query, values)
     if result:
-        return [ImageData(**image) for image in result]
+        return [ImageData(**image) for image in result] # type: ignore
     return None
 
 
@@ -147,17 +149,17 @@ def get_gallery_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstr
     values = (gallery_code,)
     result = select_query(connection, query, values)
     if result:
-        return GalleryData(**result[0])
+        return GalleryData(**result[0]) # type: ignore
     return None
 
 
-def get_gallery_by_user_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> list[GalleryData]:
+def get_gallery_by_user_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> list[GalleryData] | None:
     logger.debug(f"Getting galleries of user: `{user.username}` from the database.")
     query = "SELECT * FROM galleries WHERE uploaded_by = %s"
     values = (user.username,)
     result = select_query(connection, query, values)
     if result:
-        return [GalleryData(**gallery) for gallery in result]
+        return [GalleryData(**gallery) for gallery in result] # type: ignore
     return None
 
 
@@ -175,13 +177,13 @@ def add_image_gallery_link_to_db(connection: PooledMySQLConnection | MySQLConnec
     insert_query(connection, query, values)
 
 
-def get_image_gallery_links_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, gallery_code: str) -> list[ImageGalleryLink]:
+def get_image_gallery_links_from_db(connection: PooledMySQLConnection | MySQLConnectionAbstract, gallery_code: str) -> list[ImageGalleryLink] | None:
     # logger.debug(f"Getting links: `{gallery_code}` from the database.")
     query = "SELECT * FROM links WHERE gallery_code = %s"
     values = (gallery_code,)
     result = select_query(connection, query, values)
     if result:
-        return [ImageGalleryLink(**link) for link in result]
+        return [ImageGalleryLink(**link) for link in result] # type: ignore
     return None
 
 
@@ -203,59 +205,62 @@ def get_images_of_gallery_from_db(connection: PooledMySQLConnection | MySQLConne
     # logger.debug(f"Getting images of gallery: `{gallery_code}` from the database.")
     links = get_image_gallery_links_from_db(connection, gallery_code)
     images = []
+    if not links:
+        logger.debug(f"No images found for gallery: `{gallery_code}`.")
+        return images
     for link in links:
         image = get_image_from_db(connection, link.filename)
         images.append(image)
     return images
 
 
-def get_user_id_by_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> int:
+def get_user_id_by_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> int | None:
     # logger.debug(f"Getting user: `{username}` from the database.")
     query = "SELECT id FROM users WHERE username = %s"
     values = (username,)
     result = select_query(connection, query, values)
     if result:
-        return result[0]["id"]
+        return result[0]["id"] # type: ignore
     return None
 
 
-def get_user_id(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> int:
+def get_user_id(connection: PooledMySQLConnection | MySQLConnectionAbstract, user: UserDB) -> int | None:
     # logger.debug(f"Getting user: `{username}` from the database.")
     query = "SELECT id FROM users WHERE username = %s"
     values = (user.username,)
     result = select_query(connection, query, values)
     if result:
-        return result[0]["id"]
+        return result[0]["id"] # type: ignore
     return None
 
 
-def get_user_by_id(connection: PooledMySQLConnection | MySQLConnectionAbstract, user_id: int) -> UserDB:
+def get_user_by_id(connection: PooledMySQLConnection | MySQLConnectionAbstract, user_id: int) -> UserDB | None:
     # logger.debug(f"Getting user: `{user_id}` from the database.")
     query = "SELECT * FROM users WHERE id = %s"
     values = (user_id,)
     result = select_query(connection, query, values)
     if result:
-        return UserDB(**result[0])
+        return UserDB(**result[0]) # type: ignore
     return None
 
 
-def get_user_by_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> UserDB:
+def get_user_by_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> UserDB | None:
     # logger.debug(f"Getting user: `{username}` from the database.")
     query = "SELECT * FROM users WHERE username = %s"
     values = (username,)
     result = select_query(connection, query, values)
     if result:
-        return UserDB(**result[0])
-    return None
+        return UserDB(**result[0]) # type: ignore
+    return None 
 
 
-def get_user_by_email(connection: PooledMySQLConnection | MySQLConnectionAbstract, email: str) -> UserDB:
+def get_user_by_email(connection: PooledMySQLConnection | MySQLConnectionAbstract, email: str) -> UserDB | None:
     # logger.debug(f"Getting user: `{username}` from the database.")
     query = "SELECT * FROM users WHERE email = %s"
     values = (email,)
     result = select_query(connection, query, values)
     if result:
-        return UserDB(**result[0])
+        return UserDB(**result[0]) # type: ignore
     return None
 
 
@@ -302,23 +307,23 @@ def save_forgot_password_token(connection: PooledMySQLConnection | MySQLConnecti
     insert_query(connection, query, values)
 
 
-def get_forgot_password_token_from_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> str:
+def get_forgot_password_token_from_username(connection: PooledMySQLConnection | MySQLConnectionAbstract, username: str) -> str | None:
     logger.debug(f"Getting forgot password account: `{username}` from the database.")
     query = "SELECT * FROM forgot_password WHERE username = %s"
     values = (username,)
     result = select_query(connection, query, values)
     if result:
-        return result[0]["token"]
+        return result[0]["token"] # type: ignore
     return None
 
 
-def get_forgot_password_account_from_token(connection: PooledMySQLConnection | MySQLConnectionAbstract, token: str) -> UserDB:
+def get_forgot_password_account_from_token(connection: PooledMySQLConnection | MySQLConnectionAbstract, token: str) -> UserDB | None:
     logger.debug(f"Getting forgot password token: `{token}` from the database.")
     query = "SELECT * FROM forgot_password WHERE token = %s"
     values = (token,)
     result = select_query(connection, query, values)
     if result:
-        user = get_user_by_username(connection, result[0]["username"])
+        user = get_user_by_username(connection, result[0]["username"]) # type: ignore
         return user
     return None
 
