@@ -2,7 +2,7 @@ import typing
 
 from fastapi import Form
 from fastapi.responses import HTMLResponse
-from app.src.utils.database import create_connection
+from src.utils.database import create_connection
 from src.utils.flash import flash, get_flashed_messages, FlashCategory
 from src.utils.refresh_team_file import refresh_team_file
 from src.dependencies import *
