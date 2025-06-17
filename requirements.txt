@@ -10,7 +10,6 @@ discord
 python-dotenv
 hashids
 shutils
-audioop-lts
 mysql-connector-python
 loguru
 fastapi_login
@@ -19,3 +18,4 @@ python-jose[cryptography]
 pyotp
 yagmail
 pillow
+audioop-lts # requires python 3.13+
