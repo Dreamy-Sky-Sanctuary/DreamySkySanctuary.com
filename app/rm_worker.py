@@ -22,7 +22,7 @@ async def printer():
 @client.event
 async def on_ready() -> None:
     printer.start()
-    await client.change_presence(status=Status.invisible) # Set bot status to invisible
+    await client.change_presence(status=Status.offline) # Set bot status to invisible
     logger.log("PRINT", "Bot is ready.")
 
 
