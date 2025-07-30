@@ -8,6 +8,7 @@ from src.utils.remove_old_uploads import remove_expired_files
 from src.routes.bot.bot import client
 from src.logger import Logger
 from discord.ext import tasks
+from discord import Status
 
 logger = Logger()
 
@@ -21,6 +22,7 @@ async def printer():
 @client.event
 async def on_ready() -> None:
     printer.start()
+    await client.change_presence(status=Status.invisible) # Set bot status to invisible
     logger.log("PRINT", "Bot is ready.")
 
 
