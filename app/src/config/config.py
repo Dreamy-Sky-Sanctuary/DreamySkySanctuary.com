@@ -9,8 +9,10 @@ APP_NAME: str = 'DreamySkySanctuary'
 DESCRIPTION: str = 'The website of the Dreamy Sky Sanctuary, a discord server about the game Sky: Children of the Light.'
 
 CLIENT_ORIGIN: list[str] = [
+    "http://127.0.0.1",
     "http://localhost",
     "http://dreamyskysanctuary.com",
+    "https://dreamyskysanctuary.com",
 ]
 
 BASE_DIR: str = os.getcwd()

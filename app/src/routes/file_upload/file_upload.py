@@ -26,7 +26,7 @@ async def main(request: Request, response: Response):
     string_types = ""
     for type in config.ALLOWED_FILE_TYPES:
         string_types += f"{type}, "
-    return templates.TemplateResponse(name="main/upload.html", context={"request": request, "user": user, "allowed_types": string_types, "base_url": str(request.base_url)[:-1]})
+    return templates.TemplateResponse(name="main/upload.html", context={"request": request, "user": user, "allowed_types": string_types, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")})
 
 
 @router.post("/upload", include_in_schema=True)
@@ -147,7 +147,7 @@ async def gallery(request: Request):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/galleries.html",
-        context={"request": request, "user": user, "galleries": gallery_list, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "galleries": gallery_list, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
@@ -177,7 +177,7 @@ async def gallery(request: Request, gallery_code: str):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/gallery.html",
-        context={"request": request, "user": user, "images": images, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "images": images, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
@@ -210,7 +210,7 @@ async def gallery(request: Request, gallery_code: str, auth_code: str):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/gallery.html",
-        context={"request": request, "user": user, "images": images, "gallery_code": gallery_code, "auth_code": auth_code, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "images": images, "gallery_code": gallery_code, "auth_code": auth_code, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
@@ -226,7 +226,7 @@ async def image(request: Request):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/images.html",
-        context={"request": request, "user": user, "images": images, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "images": images, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
@@ -244,7 +244,7 @@ async def image(request: Request, file_name: str):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/image.html",
-        context={"request": request, "user": user, "image": image, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "image": image, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
@@ -266,7 +266,7 @@ async def manage_image(request: Request, file_name: str, auth_code: str):
     close_connection(connection)
     return templates.TemplateResponse(
         name="main/image.html",
-        context={"request": request, "user": user, "image": image, "auth_code": auth_code, "base_url": str(request.base_url)[:-1]}
+        context={"request": request, "user": user, "image": image, "auth_code": auth_code, "base_url": "https://" +str(request.base_url)[:-1].strip("http://")}
     )
 
 
